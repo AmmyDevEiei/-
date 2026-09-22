@@ -1,12 +1,11 @@
 import os
 import sys
-import shutil
 import docx
 from docx.shared import Pt, Inches, RGBColor
 from docx.oxml.ns import qn, nsdecls
 from docx.oxml import OxmlElement, parse_xml
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
+from docx.enum.table import WD_TABLE_ALIGNMENT
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -47,7 +46,7 @@ def set_cell_shading(cell, color_hex):
     shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{color_hex}"/>')
     cell._tc.get_or_add_tcPr().append(shd)
 
-def set_cell_margins(cell, top=80, bottom=80, left=120, right=120):
+def set_cell_margins(cell, top=70, bottom=70, left=100, right=100):
     tcPr = cell._tc.get_or_add_tcPr()
     tcMar = OxmlElement('w:tcMar')
     for m, val in [('top', top), ('bottom', bottom), ('left', left), ('right', right)]:
@@ -71,16 +70,17 @@ def set_table_borders(table, color="D0D5DD", sz="4", val="single"):
     ''')
     tblPr.append(borders)
 
-def build_optimized():
-    src_docx = r'แผนที่สมบูรณ์สำหรับแทนนี่\025 ณัฐณิชา งานเล่มคู่มือผลิตสื่อ Video.docx'
-    doc = docx.Document(src_docx)
+def build_clean():
+    src_clean = r'แผนที่สมบูรณ์สำหรับแทนนี่\025 ณัฐณิชา งานเล่มคู่มือผลิตสื่อ Video.docx.bak2'
+    doc = docx.Document(src_clean)
 
-    # Keep paragraphs 0 to 37
+    # Trim to 0..37
     body = doc._body._element
-    for p in list(doc.paragraphs[38:]):
-        body.remove(p._element)
+    children_to_remove = list(body[38:-1])
+    for c in children_to_remove:
+        body.remove(c)
 
-    # P26 update duration to 3.35 นาที
+    # Update P26 duration to 3.35 นาที
     p26 = doc.paragraphs[26]
     p26.text = ""
     add_run(p26, "รูปแบบสื่อ: วิดีโอแอนิเมชันขนาดความละเอียด Full HD (1080p) สัดส่วน 16:9 แนวนอน ความยาวประมาณ 3.35 นาที", font_size=16)
@@ -92,27 +92,27 @@ def build_optimized():
 
     add_para(doc, 
         "การผลิตสื่อนวัตกรรมวิดีโอการเรียนรู้ เรื่อง \"ไขความลับพีทาโกรัส: ตอน พิชิตการหาด้านตรงข้ามมุมฉาก\" เพื่อใช้จัดการเรียนรู้นอกห้องเรียนล่วงหน้า (Out-of-Class Learning) ตามแนวคิดห้องเรียนกลับด้าน (Flipped Classroom) ความยาวรวมประมาณ 3.35 นาที ได้บูรณาการเครื่องมือปัญญาประดิษฐ์ (Generative AI) ร่วมกับซอฟต์แวร์ตัดต่อสมัยใหม่ โดยดำเนินงานตามขั้นตอนการผลิตอย่างเป็นระบบ ดังนี้:",
-        font_size=16, space_before=0, space_after=6)
+        font_size=16, space_before=0, space_after=5)
 
     # -------------------------------------------------------------------------
     # 4.1 ภาพรวมขั้นตอนและกระบวนการผลิตวิดีโอ (Production Workflow)
     # -------------------------------------------------------------------------
     add_para(doc, "4.1 ภาพรวมขั้นตอนและกระบวนการผลิตวิดีโอ (Production Workflow)", font_size=16, bold=True, space_before=6, space_after=3, keep_with_next=True)
     
-    add_para(doc, "การสร้างวิดีโอการสอนความยาวประมาณ 3-4 นาทีด้วย AI ให้ได้คุณภาพสูง คมชัด และสอดคล้องกับตัวชี้วัด จำเป็นต้องแยกทำทีละฉาก (Scene-by-Scene) และใช้คำสั่งที่จำเพาะเจาะจง โดยแบ่งกระบวนการออกเป็น 4 ขั้นตอนหลัก:", font_size=16, space_after=4)
+    add_para(doc, "การสร้างวิดีโอการสอนความยาวประมาณ 3-4 นาทีด้วย AI ให้ได้คุณภาพสูง ชัดเจน และตรงตามหลักสูตร จำเป็นต้องแยกทำทีละฉาก (Scene-by-Scene) และใช้คำสั่งที่จำเพาะเจาะจง โดยมี 4 ขั้นตอนหลักในการดำเนินงาน:", font_size=16, space_after=4)
 
     # Step 1
-    p1 = add_para(doc, "1) การเตรียมเสียงพากย์และบทพูด (Voiceover & Audio):", font_size=16, bold=True, space_before=3, space_after=1, keep_with_next=True)
+    add_para(doc, "1) การเตรียมเสียงพากย์และบทพูด (Voiceover & Audio):", font_size=16, bold=True, space_before=3, space_after=1, keep_with_next=True)
     add_para(doc, 
-        "• บันทึกและสังเคราะห์เสียงพากย์ของ \"ครูณัฐ\" ทีละฉาก โดยใช้เทคโนโลยี AI Text-to-Speech (เช่น CapCut AI TTS / ElevenLabs) ซึ่งให้เสียงภาษาไทยที่เป็นธรรมชาติ คุมโทนเสียงให้สดใส อบอุ่น เป็นกันเอง และตื่นเต้นตามบทบาทครูผู้สอน\n"
-        "• จัดเตรียมเสียงประกอบ (Sound Effects: SFX) เช่น เสียงไซเรนสั้นๆ, เสียงแมวร้อง \"เหมียว~\", เสียง \"ปิ๊ง!\", เสียงกระดิ่ง \"กริ๊ง!\" และเพลงประกอบแนว Edutainment จังหวะสดใสคลอเบาๆ ตลอดทั้งเรื่อง",
+        "• บันทึกและสังเคราะห์เสียงพากย์ของ \"ครูณัฐ\" ทีละฉาก โดยใช้เทคโนโลยี AI Text-to-Speech (เช่น CapCut AI TTS / ElevenLabs) ซึ่งให้เสียงภาษาไทยที่เป็นธรรมชาติ คุมโทนเสียงให้สดใส อบอุ่น เป็นกันเอง และตื่นเต้นชวนติดตามตามบทบาทครูผู้สอน\n"
+        "• จัดเตรียมเสียงประกอบ (Sound Effects: SFX) เช่น เสียงไซเรนสั้นๆ, เสียงแมวร้อง \"เหมียว~\", เสียง \"ปิ๊ง!\", เสียงกระดิ่ง \"กริ๊ง!\" และดนตรีประกอบแนว Edutainment จังหวะสดใสคลอเบาๆ",
         font_size=15, space_after=3)
 
     # Step 2
     add_para(doc, "2) การสร้างคลิปวิดีโอทีละฉากด้วย AI (Scene Generation):", font_size=16, bold=True, space_before=3, space_after=1, keep_with_next=True)
     add_para(doc, 
-        "• นำชุดคำสั่ง Video Prompt ภาษาอังกฤษที่ผ่านการปรับแต่งเฉพาะ (Optimized AI Video Prompts) ไปใส่ในเครื่องมือสร้างวิดีโอ AI (เช่น Runway Gen-3 Alpha, Kling AI, Luma Dream Machine) เพื่อสร้างคลิปภาพเคลื่อนไหว 3D Cute Cartoon Educational Animation ความยาวฉากละ 15 - 45 วินาที\n"
-        "• คำแนะนำเชิงเทคนิค: การใช้ Prompt ภาษาอังกฤษช่วยให้โมเดล AI ตีความภาพ 3 มิติ มุมกล้อง (Camera Motion) และฉากสิ่งแวดล้อมได้คมชัด ถูกต้อง และสวยงามกว่าภาษาอื่น",
+        "• นำคำสั่ง Video Prompt ภาษาอังกฤษที่ผ่านการปรับแต่งเฉพาะ (Optimized AI Video Prompts) ไปใส่ในเครื่องมือสร้างวิดีโอ AI (เช่น Runway Gen-3 Alpha, Kling AI, Luma Dream Machine) เพื่อสร้างคลิปภาพเคลื่อนไหวแอนิเมชัน 3 มิติ (3D Cute Cartoon Educational Animation) ความยาวฉากละ 15 - 45 วินาที\n"
+        "• คำแนะนำเชิงเทคนิค: การใช้คำสั่งภาษาอังกฤษช่วยให้โมเดล Generative AI ตีความภาพ 3 มิติ การเคลื่อนไหวของมุมกล้อง (Camera Motion) แสงเงา และรายละเอียดสิ่งแวดล้อมได้คมชัดและแม่นยำกว่าภาษาอื่น จึงจัดทำชุด Prompt ภาษาอังกฤษสำหรับแต่ละฉากไว้โดยเฉพาะ",
         font_size=15, space_after=3)
 
     # Step 3
@@ -120,18 +120,18 @@ def build_optimized():
     add_para(doc, 
         "• นำคลิปวิดีโอที่ได้จากการเจน AI มารวบรวมและจัดวางในโปรแกรมตัดต่อ (CapCut PC / Canva Pro)\n"
         "• ซ้อนข้อความอธิบายความรู้บนหน้าจอ (Text & Math Overlay) เช่น ไดอะแกรมสามเหลี่ยมมุมฉาก สูตรพีทาโกรัส สเต็ป 1-4 และป้ายเตือนข้อควรระวังตามที่ระบุในแต่ละฉาก\n"
-        "• ข้อกำหนดสำคัญด้านลิขสิทธิ์: วางสัญลักษณ์ข้อความและรหัสนิสิต \"ณัฐณิชา 025\" ไว้ที่มุมขวาบนของหน้าจอตลอดทั้งคลิปวิดีโอ เพื่อยืนยันลิขสิทธิ์ผลงานตนเอง",
+        "• ข้อกำหนดสำคัญด้านลิขสิทธิ์: วางสัญลักษณ์ข้อความและรหัสนิสิต \"ณัฐณิชา 025\" ไว้ที่มุมขวาบนของหน้าจอตลอดทั้งคลิปวิดีโอ เพื่อยืนยันลิขสิทธิ์ความเป็นเจ้าของผลงานตนเอง",
         font_size=15, space_after=3)
 
     # Step 4
     add_para(doc, "4) การจัดจังหวะ ผสมเสียง และควบคุมความยาว (Editing & Audio Mixing):", font_size=16, bold=True, space_before=3, space_after=1, keep_with_next=True)
     add_para(doc, 
-        "• ตรวจสอบความต่อเนื่องของภาพ แอนิเมชัน เสียงพากย์ ดนตรีคลอ และซับไตเติลภาษาไทย ให้ตรงจังหวะและมีความกลมกลืน\n"
-        "• ควบคุมความยาวรวมของสื่อวิดีโอให้อยู่ที่ 3 นาที 35 วินาที (อยู่ในเกณฑ์ 3 - 4 นาที และไม่เกิน 5 นาทีตามกำหนด)",
+        "• ตรวจสอบความต่อเนื่องและความลื่นไหลของภาพ แอนิเมชัน เสียงพากย์ ดนตรีคลอ และซับไตเติลภาษาไทย ให้ตรงจังหวะและมีความกลมกลืน\n"
+        "• ควบคุมความยาวรวมของสื่อวิดีโอให้อยู่ที่ 3 นาที 35 วินาที (อยู่ในเกณฑ์ 3 - 4 นาที และไม่เกิน 5 นาทีตามกำหนดอย่างเคร่งครัด)",
         font_size=15, space_after=6)
 
     # -------------------------------------------------------------------------
-    # 4.2 การประยุกต์ใช้เครื่องมือเทคโนโลยีและปัญญาประดิษฐ์ (AI Tools & Technologies)
+    # 4.2 การประยุกต์ใช้เครื่องมือเทคโนโลยีและปัญญาประดิษฐ์ (AI Tools & Applications)
     # -------------------------------------------------------------------------
     add_para(doc, "4.2 การประยุกต์ใช้เครื่องมือเทคโนโลยีและปัญญาประดิษฐ์ (AI Tools & Applications)", font_size=16, bold=True, space_before=6, space_after=3, keep_with_next=True)
     
@@ -143,7 +143,7 @@ def build_optimized():
     for c_idx, h in enumerate(headers):
         cell = tbl_tools.cell(0, c_idx)
         set_cell_shading(cell, "F2F4F7")
-        set_cell_margins(cell, top=80, bottom=80, left=100, right=100)
+        set_cell_margins(cell, top=70, bottom=70, left=100, right=100)
         p = cell.paragraphs[0]
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         add_run(p, h, font_size=14, bold=True)
@@ -151,7 +151,7 @@ def build_optimized():
     tools_data = [
         ("1. การวางแผนและเขียนบทพูด\n(Script Writing)", "Google Gemini &\nChatGPT (GPT-4o)", "กำหนดโครงเรื่อง 3 ช่วง (Intro -> Body -> Outro) ยกร่างบทพากย์ครูณัฐ และคำนวณเวลาให้กระชับเหมาะสมกับเด็ก ม.2"),
         ("2. การสร้างภาพนิ่งและคีย์เฟรม\n(Visual Concept)", "Canva Magic Media &\nCanva Pro", "สร้างภาพร่างต้นแบบตัวละครคุณครู ภาพจำลองรถดับเพลิง และไดอะแกรมเรขาคณิตสามเหลี่ยมมุมฉาก"),
-        ("3. การสร้างวิดีโอแอนิเมชัน AI\n(Scene Generation)", "Runway Gen-3 Alpha /\nKling AI / Luma", "นำชุดคำสั่ง Video Prompt ภาษาอังกฤษไปสร้างคลิปแอนิเมชัน 3D การ์ตูนเพื่อการศึกษาทีละฉาก ความละเอียด 1080p"),
+        ("3. การสร้างวิดีโอแอนิเมชัน AI\n(Scene Generation)", "Runway Gen-3 Alpha /\nKling AI / Luma", "นำชุดคำสั่ง Video Prompt ภาษาอังกฤษไปสร้างคลิปแอนิเมชัน 3D การ์ตูนเพื่อการศึกษาทีละฉาก ความละเอียด Full HD 1080p"),
         ("4. การสังเคราะห์เสียงพากย์ AI\n(Voiceover Generation)", "CapCut AI Text-to-Speech\n(เสียงครูใจดี) / ElevenLabs", "แปลงบทพูดภาษาไทยเป็นเสียงบรรยายสดใส เป็นธรรมชาติ เว้นจังหวะเน้นย้ำสูตรและจุดสำคัญได้อย่างถูกต้อง"),
         ("5. การตัดต่อ กราฟิก และเรนเดอร์\n(Editing & Compositing)", "CapCut PC &\nCanva Pro", "รวมคลิปวิดีโอ ซ้อนภาพ ซ้อนสูตรคณิตศาสตร์ ใส่ซับไตเติล ผสมเสียงดนตรี/SFX ฝังลายน้ำ 'ณัฐณิชา 025' และเรนเดอร์เป็นไฟล์ MP4")
     ]
@@ -159,7 +159,7 @@ def build_optimized():
     for r_idx, row_data in enumerate(tools_data, 1):
         for c_idx, text in enumerate(row_data):
             cell = tbl_tools.cell(r_idx, c_idx)
-            set_cell_margins(cell, top=70, bottom=70, left=100, right=100)
+            set_cell_margins(cell, top=60, bottom=60, left=100, right=100)
             if r_idx % 2 == 1:
                 set_cell_shading(cell, "F9FAFB")
             p = cell.paragraphs[0]
@@ -186,7 +186,7 @@ def build_optimized():
     for c_idx, h in enumerate(sb_headers):
         cell = tbl_sb.cell(0, c_idx)
         set_cell_shading(cell, "EBF3FB")
-        set_cell_margins(cell, top=80, bottom=80, left=90, right=90)
+        set_cell_margins(cell, top=70, bottom=70, left=80, right=80)
         p = cell.paragraphs[0]
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         add_run(p, h, font_size=14, bold=True)
@@ -194,16 +194,16 @@ def build_optimized():
     sb_rows = [
         ("ฉากที่ 1", "0:00 – 0:35\n(35 วิ)", "เปิดภารกิจกู้ภัยตึกสูง\n(กระตุ้นความสนใจ/ตั้งปัญหา)", "3D Animation รถดับเพลิงยืดบันไดช่วยลูกแมวส้มบนระเบียงตึกชั้น 3", "เสียงครูสดใสชวนคิดหาความยาวบันได / เสียงไซเรน และเสียงแมวเหมียว"),
         ("ฉากที่ 2", "0:35 – 1:15\n(40 วิ)", "วาดรูปจำลอง & หาด้าน c\n(ทักษะแปลงโจทย์)", "Motion Graphics ตึกแปลงเป็นสามเหลี่ยมมุมฉาก ลูกศรชี้พุ่งไปหาด้าน c", "เสียงอบอุ่นสอนเทคนิคสังเกตมุมฉาก ด้าน c อยู่ตรงข้ามและยาวที่สุด / เสียงปิ๊ง!"),
-        ("ฉากที่ 3", "1:15 – 1:55\n(40 วิ)", "เปิดกล่องสูตรลับ & ชุดตัวเลข\n(ที่มาสูตรสำเร็จ)", "บล็อกสี่เหลี่ยมบนด้าน a และ b รวมตัวเป็นบล็อกสีทองบนด้าน c, สูตรแปลงรูป", "เสียงสอนสูตรสำเร็จรูป c = √(a² + b²) และแนะนำชุดตัวเลข 3-4-5 และ 9-12-15"),
-        ("ฉากที่ 4", "1:55 – 2:45\n(50 วิ)", "สาธิต 4 สเต็ปทองคำ\n(ขั้นตอนการคำนวณ)", "Split Screen ด้านซ้ายใบงาน ภารกิจที่ 1 ด้านขวากระดานเขียนวิธีทำทีละสเต็ป", "เสียงครูอธิบาย 4 สเต็ปทองคำคำนวณ a=9, b=12 ได้ c=15 ม. / เสียงปากกาเขียน"),
-        ("ฉากที่ 5", "2:45 – 3:10\n(25 วิ)", "กับดักที่เด็ก ม.2 ชอบพลาด!\n(ข้อควรระวัง)", "การ์ตูนปั๊มตรากากบาทสีแดงบนสูตรผิด a+b=c พร้อมป้ายเตือนระวังสีเหลือง", "เสียงตื่นเต้นเตือน 2 จุดพลาด: ห้ามบวกตรงๆ ต้องยกกำลังสอง และอย่าลืมถอดรูท"),
+        ("ฉากที่ 3", "1:15 – 1:55\n(40 วิ)", "เปิดกล่องสูตรลับ & ชุดตัวเลข\n(ที่มาสูตรสำเร็จ)", "บล็อกสี่เหลี่ยมบนด้าน a และ b รวมตัวเป็นบล็อกสีทองบนด้าน c, แปลงสูตร", "เสียงสอนสูตรสำเร็จรูป c = √(a² + b²) และแนะนำชุดตัวเลข 3-4-5 และ 9-12-15"),
+        ("ฉากที่ 4", "1:55 – 2:45\n(50 วิ)", "สาธิต 4 สเต็ปทองคำ\n(ขั้นตอนการคำนวณ)", "Split Screen ซ้ายใบงาน ภารกิจที่ 1 ขวากระดานเขียนวิธีทำทีละสเต็ป", "เสียงครูอธิบาย 4 สเต็ปทองคำคำนวณ a=9, b=12 ได้ c=15 ม. / เสียงปากกาเขียน"),
+        ("ฉากที่ 5", "2:45 – 3:10\n(25 วิ)", "กับดักที่เด็ก ม.2 ชอบพลาด!\n(ข้อควรระวัง)", "การ์ตูนปั๊มตรากากบาทแดงบนสูตรผิด a+b=c พร้อมป้ายเตือนระวังสีเหลือง", "เสียงตื่นเต้นเตือน 2 จุดพลาด: ห้ามบวกตรงๆ ต้องยกกำลังสอง และอย่าลืมถอดรูท"),
         ("ฉากที่ 6", "3:10 – 3:35\n(25 วิ)", "ภารกิจก่อนเข้าห้องเรียน\n(สรุปและมอบหมายงาน)", "นักเรียน 5 บทบาทนั่งทำงานกลุ่มร่วมกัน มีมือถือเปิด Padlet และครูโบกมือลา", "เสียงอบอุ่นมอบหมาย 2 ภารกิจ: สรุป Mind Map 1 หน้า และตั้งคำถามลง Padlet")
     ]
 
     for r_idx, r_data in enumerate(sb_rows, 1):
         for c_idx, text in enumerate(r_data):
             cell = tbl_sb.cell(r_idx, c_idx)
-            set_cell_margins(cell, top=70, bottom=70, left=90, right=90)
+            set_cell_margins(cell, top=60, bottom=60, left=80, right=80)
             if r_idx % 2 == 1:
                 set_cell_shading(cell, "F9FAFB")
             p = cell.paragraphs[0]
@@ -224,19 +224,18 @@ def build_optimized():
     
     add_para(doc, 
         "รายละเอียดชุดคำสั่ง (Prompt) ที่ใช้ในการสร้างสรรค์ภาพเคลื่อนไหว บทพากย์เสียง องค์ประกอบกราฟิก และเอฟเฟกต์เสียงในแต่ละฉาก มีรายละเอียดดังนี้:",
-        font_size=16, space_after=6)
+        font_size=16, space_after=5)
 
     def add_scene_section(scene_no, title, duration, video_prompt, voiceover, graphics, sfx, sample_img=None, img_caption=""):
-        # Header
         p_hdr = add_para(doc, f"ฉากที่ {scene_no}: {title} (ช่วงเวลา {duration})", font_size=16, bold=True, color=(15, 23, 42), space_before=6, space_after=2, keep_with_next=True)
         
-        # Video Prompt box
-        tbl_prompt = doc.add_table(rows=1, cols=1)
-        tbl_prompt.alignment = WD_TABLE_ALIGNMENT.CENTER
-        c = tbl_prompt.cell(0, 0)
+        # Prompt box
+        tbl_pr = doc.add_table(rows=1, cols=1)
+        tbl_pr.alignment = WD_TABLE_ALIGNMENT.CENTER
+        c = tbl_pr.cell(0, 0)
         set_cell_shading(c, "F1F5F9")
-        set_cell_margins(c, top=80, bottom=80, left=120, right=120)
-        set_table_borders(tbl_prompt, color="CBD5E1", sz="4")
+        set_cell_margins(c, top=70, bottom=70, left=110, right=110)
+        set_table_borders(tbl_pr, color="CBD5E1", sz="4")
         c.width = Inches(6.5)
         p_pr = c.paragraphs[0]
         p_pr.paragraph_format.space_before = Pt(2)
@@ -245,7 +244,6 @@ def build_optimized():
         add_run(p_pr, "• Video Prompt (สำหรับ AI Video): ", font_size=14, bold=True, color=(30, 41, 59))
         add_run(p_pr, f'"{video_prompt}"', font_size=13, italic=True, color=(51, 65, 85))
 
-        # Content paragraphs
         p_vo = add_para(doc, space_before=3, space_after=2, keep_with_next=True)
         p_vo.paragraph_format.left_indent = Inches(0.2)
         add_run(p_vo, "• เสียงพากย์ (Voiceover): ", font_size=15, bold=True, color=(30, 41, 59))
@@ -261,7 +259,6 @@ def build_optimized():
         add_run(p_sfx, "• SFX & ดนตรี: ", font_size=15, bold=True, color=(30, 41, 59))
         add_run(p_sfx, sfx, font_size=15, color=(51, 65, 85))
 
-        # Sample Image
         if sample_img and os.path.exists(sample_img):
             p_img = doc.add_paragraph()
             p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -269,12 +266,12 @@ def build_optimized():
             p_img.paragraph_format.space_after = Pt(2)
             p_img.paragraph_format.keep_with_next = True
             r_img = p_img.add_run()
-            r_img.add_picture(sample_img, width=Inches(4.8))
+            r_img.add_picture(sample_img, width=Inches(4.6))
             
             p_cap = doc.add_paragraph()
             p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
             p_cap.paragraph_format.space_before = Pt(1)
-            p_cap.paragraph_format.space_after = Pt(6)
+            p_cap.paragraph_format.space_after = Pt(5)
             add_run(p_cap, img_caption, font_size=13, italic=True, color=(100, 116, 139))
         else:
             add_para(doc, "", font_size=4, space_before=0, space_after=3)
@@ -343,7 +340,7 @@ def build_optimized():
         "2. โพสต์คำถามที่สงสัย 1 ข้อลงใน Padlet ของห้องเราค่ะ\n"
         "พรุ่งนี้กลุ่มละ 5 คนมารวมพลังพิชิต Pythagoras Mission คว้าเต็ม 10 ไปด้วยกัน แล้วพบกันในห้องเรียนนะคะ สวัสดีค่ะ!\"",
         "ป้ายภารกิจ 2 ข้อ / ลิขสิทธิ์มุมขวาบน: ณัฐณิชา 025",
-        "ดนตรีท่อนจบสนุกสนาน บรรเลงส่งท้ายและเฟดเบาๆ อย่างนุ่มนวล"
+        "ดนตรีท่อนจบสนุกสนาน บรรเลงส่งท้ายและค่อยๆ เฟดเบาลงอย่างนุ่มนวล"
     )
 
     # -------------------------------------------------------------------------
@@ -356,7 +353,7 @@ def build_optimized():
         font_size=16, space_after=8)
 
     # =========================================================================
-    # 5. ลิงก์สื่อ Video และ QR Code สำหรับเข้าถึง (New Page for clean presentation)
+    # 5. ลิงก์สื่อ Video และ QR Code สำหรับเข้าถึง (New Page)
     # =========================================================================
     add_para(doc, "5. ลิงก์สื่อ Video และ QR Code สำหรับเข้าถึง", font_size=18, bold=True, space_before=10, space_after=4, keep_with_next=True, page_break_before=True)
 
@@ -379,9 +376,9 @@ def build_optimized():
 
     add_para(doc, "(สแกน QR Code เพื่อรับชมสื่อ Video บน Google Drive บัญชี มมส.)", font_size=14, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=12)
 
-    # Save
-    doc.save(src_docx)
-    print(f"Optimized docx saved to {src_docx}")
+    target_docx = r'แผนที่สมบูรณ์สำหรับแทนนี่\025 ณัฐณิชา งานเล่มคู่มือผลิตสื่อ Video.docx'
+    doc.save(target_docx)
+    print(f"Clean document successfully written to: {target_docx}")
 
 if __name__ == "__main__":
-    build_optimized()
+    build_clean()
